@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App name -->
+    <string name="app_name">Sensor Lab</string>
+
+    <!-- Toolbar / Menu -->
+    <string name="menu_compare_sensors">Compare sensors</string>
+    <string name="menu_check_sensor">Check a sensor</string>
+    <string name="menu_analysis">Analysis</string>
+    <string name="menu_test_log">Test log</string>
+    <string name="menu_copy_log">Copy log</string>
+    <string name="menu_refresh">Refresh</string>
+
+    <!-- MainActivity - Device Card -->
+    <string name="device_info_title">Device Information</string>
+    <string name="device_manufacturer">Manufacturer</string>
+    <string name="device_model">Model</string>
+    <string name="device_android_version">Android Version</string>
+    <string name="device_api_level">API Level</string>
+    <string name="device_hardware">Hardware</string>
+    <string name="device_environment">Environment</string>
+    <string name="env_physical">Physical device</string>
+    <string name="env_emulator">Emulator (simulated sensors)</string>
+    <string name="env_emulator_caution">Emulator sensor values and list are simulated and may not match a real phone.</string>
+    <string name="total_sensors_label">Total sensors</string>
+    <string name="total_sensors_format">Total sensors: %d</string>
+
+    <!-- MainActivity - Inventory List -->
+    <string name="inventory_title">Sensor Inventory</string>
+    <string name="search_hint">Search by name, type, vendor…</string>
+    <string name="showing_count_format">Showing %d of %d</string>
+    <string name="sensor_type_prefix">Type: </string>
+    <string name="sensor_vendor_prefix">Vendor: </string>
+    <string name="chip_wakeup">Wake-up</string>
+    <string name="chip_standard">Standard</string>
+    <string name="no_sensors_title">No sensors reported by this device</string>
+    <string name="no_sensors_explanation">Possible reasons: restricted emulator image, hardware without sensors, or permissions/virtualisation issues.</string>
+    <string name="empty_inventory_simulated">Simulating empty inventory</string>
+    <string name="empty_inventory_restored">Restored real inventory</string>
+
+    <!-- SensorDetailActivity -->
+    <string name="detail_title">Sensor Details</string>
+    <string name="detail_name">Name</string>
+    <string name="detail_type">Type</string>
+    <string name="detail_string_type">String Type</string>
+    <string name="detail_vendor">Vendor</string>
+    <string name="detail_version">Version</string>
+    <string name="detail_max_range">Maximum Range</string>
+    <string name="detail_resolution">Resolution</string>
+    <string name="detail_min_delay">Min Delay</string>
+    <string name="detail_max_delay">Max Delay</string>
+    <string name="detail_power">Power</string>
+    <string name="detail_reporting_mode">Reporting Mode</string>
+    <string name="detail_wakeup">Wake-up Sensor</string>
+    <string name="detail_fifo_max">FIFO Max Event Count</string>
+    <string name="detail_fifo_reserved">FIFO Reserved Event Count</string>
+    <string name="detail_dynamic">Dynamic Sensor</string>
+    <string name="detail_additional_info">Additional Info Supported</string>
+    <string name="unit_m_s2">m/s²</string>
+    <string name="unit_rad_s">rad/s</string>
+    <string name="unit_uT">µT</string>
+    <string name="unit_lux">lux</string>
+    <string name="unit_cm">cm</string>
+    <string name="unit_hPa">hPa</string>
+    <string name="unit_celsius">°C</string>
+    <string name="unit_percent">%</string>
+    <string name="unit_unitless">(unitless)</string>
+    <string name="unit_steps">steps</string>
+    <string name="unit_bpm">bpm</string>
+    <string name="unit_unknown">unit not specified for this type</string>
+    <string name="unit_microseconds">µs</string>
+    <string name="unit_hz">Hz</string>
+    <string name="unit_mA">mA</string>
+    <string name="value_not_reported">Not reported by this device</string>
+    <string name="value_yes">Yes</string>
+    <string name="value_no">No</string>
+    <string name="value_unknown">Unknown</string>
+    <string name="delay_zero_event_driven">Event-driven (reports on change, no fixed rate)</string>
+    <string name="delay_zero_not_reported">Not reported</string>
+    <string name="power_zero_not_reported">Not reported or negligible</string>
+    <string name="reporting_continuous">Continuous</string>
+    <string name="reporting_on_change">On-change</string>
+    <string name="reporting_one_shot">One-shot</string>
+    <string name="reporting_special">Special</string>
+    <string name="reporting_unknown">Unknown</string>
+    <string name="meaning_range">Maximum value the sensor can report. Beyond this, readings saturate.</string>
+    <string name="meaning_resolution">Smallest difference the sensor can distinguish. Lower is finer.</string>
+    <string name="meaning_min_delay">Minimum sampling period in microseconds. 0 means event-driven (on-change).</string>
+    <string name="meaning_max_delay">Maximum reporting latency in microseconds. 0 means not supported.</string>
+    <string name="meaning_power">Current draw when sensor is active. 0 means not reported or negligible.</string>
+    <string name="meaning_reporting_mode">How the sensor delivers events: continuous stream, only when value changes, once per trigger, or special.</string>
+    <string name="meaning_wakeup">Can wake the CPU from sleep to deliver events.</string>
+    <string name="meaning_fifo">Hardware buffer capacity. Larger FIFO allows batching, saving wake-ups.</string>
+    <string name="meaning_dynamic">Sensor can be added/removed at runtime (e.g., Bluetooth sensor).</string>
+    <string name="meaning_additional_info">Supports extra metadata payloads (API 29+).</string>
+    <string name="synthetic_test_row_label">SYNTHETIC TEST ROW</string>
+    <string name="long_name_test_added">Long synthetic sensor added for rotation/layout testing</string>
+    <string name="long_name_test_removed">Synthetic test row removed</string>
+
+    <!-- CompareActivity -->
+    <string name="compare_title">Compare Sensors</string>
+    <string name="compare_auto_pick_title">Auto-picked Comparison (3 sensors)</string>
+    <string name="compare_auto_pick_fewer">Only %d sensor(s) available; showing all.</string>
+    <string name="compare_two_title">Compare Two Sensor Types</string>
+    <string name="compare_select_first">Select first sensor type</string>
+    <string name="compare_select_second">Select second sensor type</string>
+    <string name="compare_interpretation">Interpretation</string>
+    <string name="compare_same_type">Both spinners show the same type. Please select two different types.</string>
+    <string name="compare_missing_one">One or both selected sensors are not available on this device.</string>
+    <string name="mavunolink_title">MavunoLink Idea</string>
+    <string name="mavunolink_idea">MavunoLink idea: Use the ambient light sensor to prompt for adequate lighting when taking produce photos. Not all phones have this sensor. Battery cost is low since sensor is event-driven. Measurement quality depends on phone placement and calibration. [Edit this to match your MavunoLink brief]</string>
+
+    <!-- CheckSensorActivity -->
+    <string name="check_sensor_title">Check a Sensor</string>
+    <string name="check_sensor_prompt">Select a sensor type to check availability</string>
+    <string name="check_button">Check</string>
+    <string name="check_result_available">Available on this device</string>
+    <string name="check_result_unavailable">Not available on this device. The app will not offer features that depend on this sensor.</string>
+    <string name="check_open_details">Open Details</string>
+    <string name="sensor_type_accelerometer">Accelerometer</string>
+    <string name="sensor_type_light">Light</string>
+    <string name="sensor_type_proximity">Proximity</string>
+    <string name="sensor_type_gyroscope">Gyroscope</string>
+    <string name="sensor_type_magnetic_field">Magnetic Field</string>
+    <string name="sensor_type_pressure">Pressure</string>
+    <string name="sensor_type_ambient_temperature">Ambient Temperature</string>
+    <string name="sensor_type_relative_humidity">Relative Humidity</string>
+    <string name="sensor_type_step_counter">Step Counter</string>
+    <string name="sensor_type_heart_rate">Heart Rate</string>
+    <string name="sensor_type_gravity">Gravity</string>
+    <string name="sensor_type_rotation_vector">Rotation Vector</string>
+
+    <!-- AnalysisActivity -->
+    <string name="analysis_title">Analysis</string>
+    <string name="analysis_section_1_title">Why two phones expose different sensor lists</string>
+    <string name="analysis_section_1_text">
+Hardware choices and cost tiers: Manufacturers select sensors per model. Budget phones often omit ambient temperature, humidity, pressure, or heart-rate sensors to save BOM cost. Flagships include them.
+\n\nVendor drivers and OEM firmware: The Android sensor HAL (Hardware Abstraction Layer) is implemented by the SoC vendor and OEM. Two phones with the same physical sensor can expose different capabilities (range, resolution, batching) due to driver differences.
+\n\nAndroid version and HAL: Newer Android versions add sensor types (e.g., hinge angle, head tracker). A phone on Android 10 cannot expose sensors added in API 29+ even if hardware exists.
+\n\nRegion/model variants: The same marketing name can have different sensor suites in different regions (e.g., dual-SIM vs single-SIM variants, regulatory differences).
+\n\nVirtual sensors derived from other sensors: Gravity, linear acceleration, rotation vector, and game rotation vector are often fused in software from accelerometer + gyroscope + magnetometer. If a phone lacks a gyroscope, these virtual sensors may be absent or lower quality.
+\n\nEmulator vs phone: The Android Emulator provides a fixed, simulated sensor set defined by the AVD image. It does not reflect the diversity of real devices.
+    </string>
+    <string name="analysis_section_2_title">Does a reported sensor guarantee useful or accurate measurements?</string>
+    <string name="analysis_section_2_text">
+No. The sensor list and metadata describe capability, not calibration or quality.
+\n\nMetadata ≠ calibration: Maximum range, resolution, and power are design specs. A sensor can meet specs yet be poorly calibrated (offset, scale error, cross-axis sensitivity).
+\n\nNoise and drift: MEMS sensors exhibit thermal noise, bias drift, and vibration sensitivity. Gyroscopes drift over time; magnetometers distort near metal.
+\n\nPlacement: A phone in a pocket, hand, or mount sees different dynamics than one on a table. Proximity sensors behave differently when the screen is covered vs. exposed.
+\n\nVendor quality: Two sensors with identical datasheet values can perform differently due to silicon lot, assembly, and driver tuning.
+\n\nAccuracy status: Android reports accuracy (UNRELIABLE, LOW, MEDIUM, HIGH) at runtime. A listed sensor may stay at UNRELIABLE if calibration failed.
+\n\nPermission and battery limits: Background sensor access is restricted (Android 9+). Throttling can reduce effective rate, making high-rate sensors impractical for continuous use.
+    </string>
+    <string name="analysis_section_3_title">When would a sensor add little value to the user task?</string>
+    <string name="analysis_section_3_text">
+The task does not depend on it: If the feature works with user input (e.g., typing a temperature), a sensor adds complexity without benefit.
+\n\nUser can enter data more reliably: For sparse, subjective, or precise data (e.g., "produce variety", "exact weight"), manual entry beats a noisy sensor.
+\n\nCoarse values suffice: If the decision threshold is wide (e.g., "is it day or night?"), a high-resolution light sensor is overkill; a simple time check works.
+\n\nBattery cost outweighs benefit: Continuous high-rate sampling (gyroscope at 200 Hz) for a feature used once a day is hard to justify.
+\n\nNot widely available: If only 30% of target devices have the sensor, the feature excludes most users unless a robust fallback exists.
+\n\nPrivacy or policy: Some sensors (heart rate, microphone) require sensitive permissions and user consent, adding friction.
+    </string>
+    <string name="analysis_section_4_title">Emulator limits</string>
+    <string name="analysis_section_4_text">
+The sensor list is defined by the AVD image and virtual sensors. Values are simulated (often constants or simple patterns). Power, vendor, and resolution fields are generic placeholders. Conclusions about "phones in general" cannot be drawn from the emulator alone. This analysis covers only the inventory observed in this environment.
+    </string>
+    <string name="analysis_section_5_title">Battery, availability, and quality checklist before adding a sensor feature</string>
+    <string name="analysis_section_5_text">
+☐ Is the sensor available on ≥80% of target devices? (Check Play Console device catalog)
+☐ Does the feature work with on-change or low-rate sampling? (Avoid continuous high-rate)
+☐ Can we batch with FIFO / maxDelay to reduce wake-ups?
+☐ Is there a graceful fallback (user input, coarse alternative, disable feature)?
+☐ Have we tested on real devices across price tiers, not just the emulator?
+☐ Does the sensor stay at HIGH accuracy in typical use (case, pocket, mount)?
+☐ Is the permission model acceptable (foreground only, no body sensors unless essential)?
+☐ Can the user calibrate or override (e.g., "lighting is fine, take photo anyway")?
+    </string>
+
+    <!-- TestLogActivity -->
+    <string name="test_log_title">Test Log</string>
+    <string name="test_log_copied">Log copied to clipboard</string>
+    <string name="test_log_empty">No log entries yet</string>
+    <string name="test_log_note">Note: Log resets when the app process dies.</string>
+    <string name="test_log_entry_format" formatted="false">[%s] %s: %s</string>
+
+    <!-- TestLog Event IDs and Descriptions -->
+    <string name="log_id_e5_01">E5-01</string>
+    <string name="log_desc_e5_01">Inventory loaded (%1$d sensors)</string>
+    <string name="log_id_e5_02">E5-02</string>
+    <string name="log_desc_e5_02">Device/environment identified: %1$s</string>
+    <string name="log_id_e5_03">E5-03</string>
+    <string name="log_desc_e5_03">Detail opened for sensor: %1$s</string>
+    <string name="log_id_e5_04">E5-04</string>
+    <string name="log_desc_e5_04">Three-sensor comparison shown</string>
+    <string name="log_id_e5_05">E5-05</string>
+    <string name="log_desc_e5_05" formatted="false">Unsupported sensor checked: type=%1$d, result=%2$s</string>
+    <string name="log_id_e5_06">E5-06</string>
+    <string name="log_desc_e5_06">Empty inventory simulated: %1$s</string>
+    <string name="log_id_e5_07">E5-07</string>
+    <string name="log_desc_e5_07">Rotation occurred (config change)</string>
+    <string name="log_id_e5_08">E5-08</string>
+    <string name="log_desc_e5_08">Long-name display verified</string>
+
+    <!-- Accessibility / Content Descriptions -->
+    <string name="cd_device_card">Device information card</string>
+    <string name="cd_env_chip_physical">Physical device indicator</string>
+    <string name="cd_env_chip_emulator">Emulator indicator</string>
+    <string name="cd_sensor_row" formatted="false">Sensor: %1$s, type %2$s</string>
+    <string name="cd_wakeup_chip">Wake-up sensor</string>
+    <string name="cd_standard_chip">Standard sensor</string>
+    <string name="cd_detail_value" formatted="false">%1$s: %2$s</string>
+    <string name="cd_compare_card">Comparison card for %1$s</string>
+    <string name="cd_check_result_available">Sensor available</string>
+    <string name="cd_check_result_unavailable">Sensor not available</string>
+    <string name="cd_mavunolink_section">MavunoLink idea justification</string>
+
+    <!-- Error / Fallback -->
+    <string name="error_sensor_manager_null">SensorManager not available</string>
+    <string name="error_unknown_type">Unknown sensor type</string>
+</resources>

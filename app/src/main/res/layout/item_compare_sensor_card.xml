@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.SensorLab.Card"
+    android:layout_width="240dp"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="@dimen/spacing_md"
+    app:strokeWidth="1dp"
+    app:strokeColor="?attr/colorOutlineVariant">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/card_padding">
+
+        <!-- Name -->
+        <TextView
+            android:id="@+id/tv_compare_name"
+            style="@style/TextAppearance.SensorLab.Value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            tools:text="Accelerometer" />
+
+        <!-- Type -->
+        <TextView
+            android:id="@+id/tv_compare_type"
+            style="@style/TextAppearance.SensorLab.Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xs"
+            tools:text="Accelerometer (type 1)" />
+
+        <!-- Vendor -->
+        <TextView
+            android:id="@+id/tv_compare_vendor"
+            style="@style/TextAppearance.SensorLab.Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xs"
+            tools:text="Vendor: Google Inc." />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height"
+            android:layout_marginVertical="@dimen/spacing_sm"
+            android:background="?attr/colorOutlineVariant" />
+
+        <!-- Range -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/TextAppearance.SensorLab.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/detail_max_range" />
+
+            <TextView
+                android:id="@+id/tv_compare_range"
+                style="@style/TextAppearance.SensorLab.Value.Mono"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                tools:text="19.6 m/s²" />
+        </LinearLayout>
+
+        <!-- Resolution -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/TextAppearance.SensorLab.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/detail_resolution" />
+
+            <TextView
+                android:id="@+id/tv_compare_resolution"
+                style="@style/TextAppearance.SensorLab.Value.Mono"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                tools:text="0.001 m/s²" />
+        </LinearLayout>
+
+        <!-- Power -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/TextAppearance.SensorLab.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/detail_power" />
+
+            <TextView
+                android:id="@+id/tv_compare_power"
+                style="@style/TextAppearance.SensorLab.Value.Mono"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                tools:text="0.5 mA" />
+        </LinearLayout>
+
+        <!-- Min Delay -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/TextAppearance.SensorLab.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/detail_min_delay" />
+
+            <TextView
+                android:id="@+id/tv_compare_min_delay"
+                style="@style/TextAppearance.SensorLab.Value.Mono"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                tools:text="10000 µs (100 Hz)" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

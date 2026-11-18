@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light theme colors (Material 3 palette) -->
+    <color name="md_primary">#2E7D32</color>
+    <color name="md_primary_container">#C8E6C9</color>
+    <color name="md_secondary">#F9A825</color>
+    <color name="md_secondary_container">#FFF3E0</color>
+    <color name="md_surface">#FAFAF5</color>
+    <color name="md_surface_variant">#E8E8E0</color>
+    <color name="md_error">#B3261C</color>
+    <color name="md_error_container">#F9DEDC</color>
+    <color name="md_on_primary">#FFFFFF</color>
+    <color name="md_on_primary_container">#1B431F</color>
+    <color name="md_on_secondary">#1C1B1F</color>
+    <color name="md_on_secondary_container">#3E2E00</color>
+    <color name="md_on_surface">#1C1B1F</color>
+    <color name="md_on_surface_variant">#4F4F4C</color>
+    <color name="md_on_error">#FFFFFF</color>
+    <color name="md_on_error_container">#410E0B</color>
+    <color name="md_outline">#7A7A76</color>
+    <color name="md_outline_variant">#CACAC5</color>
+
+    <!-- Status chips -->
+    <color name="status_available">#2E7D32</color>
+    <color name="status_available_bg">#E8F5E9</color>
+    <color name="status_emulator">#F9A825</color>
+    <color name="status_emulator_bg">#FFF8E1</color>
+    <color name="status_unavailable">#B3261C</color>
+    <color name="status_unavailable_bg">#FBE9E7</color>
+
+    <!-- Text colors -->
+    <color name="text_primary">#1C1B1F</color>
+    <color name="text_secondary">#5F5F5F</color>
+    <color name="text_caption">#7A7A76</color>
+
+    <!-- Divider -->
+    <color name="divider">#E0E0E0</color>
+</resources>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_compare_sensors"
+        android:title="@string/menu_compare_sensors"
+        android:icon="@drawable/ic_compare_24"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/menu_check_sensor"
+        android:title="@string/menu_check_sensor"
+        android:icon="@drawable/ic_check_24"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/menu_analysis"
+        android:title="@string/menu_analysis"
+        android:icon="@drawable/ic_analysis_24"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/menu_test_log"
+        android:title="@string/menu_test_log"
+        android:icon="@drawable/ic_log_24"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/menu_refresh"
+        android:title="@string/menu_refresh"
+        android:icon="@drawable/ic_refresh_24"
+        app:showAsAction="ifRoom" />
+</menu>

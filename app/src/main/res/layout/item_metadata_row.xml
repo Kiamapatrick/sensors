@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.SensorLab.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/card_margin_bottom"
+    app:strokeWidth="1dp"
+    app:strokeColor="?attr/colorOutlineVariant">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/card_padding">
+
+        <!-- Label -->
+        <TextView
+            android:id="@+id/tv_meta_label"
+            style="@style/TextAppearance.SensorLab.Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="MAXIMUM RANGE" />
+
+        <!-- Value -->
+        <TextView
+            android:id="@+id/tv_meta_value"
+            style="@style/TextAppearance.SensorLab.Value.Mono"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xs"
+            tools:text="19.6 m/s²" />
+
+        <!-- Meaning / Explanation -->
+        <TextView
+            android:id="@+id/tv_meta_meaning"
+            style="@style/TextAppearance.SensorLab.Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="Maximum value the sensor can report. Beyond this, readings saturate." />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
