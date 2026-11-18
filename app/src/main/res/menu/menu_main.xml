@@ -31,4 +31,14 @@
         android:title="@string/menu_refresh"
         android:icon="@drawable/ic_refresh_24"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_test_synthetic_row"
+        android:title="@string/menu_test_synthetic_row"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_test_empty_inventory"
+        android:title="@string/menu_test_empty_inventory"
+        app:showAsAction="never" />
 </menu>

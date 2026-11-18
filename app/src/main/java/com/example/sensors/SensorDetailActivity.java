@@ -20,6 +20,7 @@ import java.util.Locale;
  * SensorDetailActivity: Shows detailed metadata for a single sensor (R2, C2).
  * Displays all available fields with correct units and "what this means" explanations.
  * Guards API-level-dependent calls with SDK_INT checks.
+ * Handles synthetic test rows with a banner and honest "Not reported" values.
  */
 public class SensorDetailActivity extends AppCompatActivity {
 
@@ -39,10 +40,12 @@ public class SensorDetailActivity extends AppCompatActivity {
     public static final String EXTRA_SENSOR_STRING_TYPE = "sensor_string_type";
     public static final String EXTRA_SENSOR_DYNAMIC = "sensor_dynamic";
     public static final String EXTRA_SENSOR_ADDITIONAL_INFO = "sensor_additional_info";
+    public static final String EXTRA_SENSOR_SYNTHETIC = "sensor_synthetic";
 
     private LinearLayout metadataContainer;
     private View accentStrip;
     private int sensorType;
+    private boolean isSynthetic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +57,11 @@ public class SensorDetailActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Log rotation if this is a recreation
+        if (savedInstanceState != null) {
+            TestLog.getInstance().logRotationOccurred(this);
+        }
 
         // Toolbar
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
@@ -81,37 +89,106 @@ public class SensorDetailActivity extends AppCompatActivity {
         int fifoMax = getIntent().getIntExtra(EXTRA_SENSOR_FIFO_MAX, -1);
         int fifoReserved = getIntent().getIntExtra(EXTRA_SENSOR_FIFO_RESERVED, -1);
         String stringType = getIntent().getStringExtra(EXTRA_SENSOR_STRING_TYPE);
-        boolean dynamic = getIntent().getBooleanExtra(EXTRA_SENSOR_DYNAMIC, false);
-        boolean additionalInfo = getIntent().getBooleanExtra(EXTRA_SENSOR_ADDITIONAL_INFO, false);
+        isSynthetic = getIntent().getBooleanExtra(EXTRA_SENSOR_SYNTHETIC, false);
 
         // Set name and type in header
         TextView tvName = findViewById(R.id.tv_detail_name);
         TextView tvType = findViewById(R.id.tv_detail_type);
         tvName.setText(name != null ? name : getString(R.string.value_not_reported));
-        String readableType = SensorInfoFormatter.getTypeNameFromConstant(sensorType);
+
+        // Use the same name logic as the list: prefer readable name from string type
+        String readableType;
+        if (isSynthetic) {
+            readableType = "Synthetic Test";
+        } else if (stringType != null && !stringType.isEmpty()) {
+            String simpleName = stringType.substring(stringType.lastIndexOf('.') + 1);
+            readableType = capitalizeWords(simpleName.replace('_', ' '));
+        } else {
+            readableType = SensorInfoFormatter.getTypeNameFromConstant(sensorType);
+        }
         String typeText = String.format(Locale.getDefault(), "%s (type %d) • %s",
                 readableType, sensorType, stringType != null && !stringType.isEmpty() ? stringType : getString(R.string.value_not_reported));
         tvType.setText(typeText);
 
-        // Accent strip: green for available
-        accentStrip.setBackgroundColor(getColor(R.color.status_available));
+        // Synthetic banner
+        if (isSynthetic) {
+            addSyntheticBanner();
+            accentStrip.setBackgroundColor(getColor(R.color.status_emulator));
+        } else {
+            accentStrip.setBackgroundColor(getColor(R.color.status_available));
+        }
 
         // Populate metadata rows
         addMetadataRow(R.string.detail_vendor, vendor != null && !vendor.isEmpty() ? vendor : getString(R.string.value_not_reported), null);
         addMetadataRow(R.string.detail_version, version >= 0 ? String.valueOf(version) : getString(R.string.value_not_reported), null);
+
+        // Range and resolution with units
         addMetadataRow(R.string.detail_max_range, SensorInfoFormatter.formatRangeOrResolution(maxRange, sensorType, this), "range");
         addMetadataRow(R.string.detail_resolution, SensorInfoFormatter.formatRangeOrResolution(resolution, sensorType, this), "resolution");
+
+        // Min/Max delay
         addMetadataRow(R.string.detail_min_delay, SensorInfoFormatter.formatMinDelay(minDelay, this), "minDelay");
         addMetadataRow(R.string.detail_max_delay, SensorInfoFormatter.formatMaxDelay(maxDelay, this), "maxDelay");
+
+        // Power
         addMetadataRow(R.string.detail_power, SensorInfoFormatter.formatPower(power, this), "power");
-        addMetadataRow(R.string.detail_reporting_mode,
-                reportingMode >= 0 ? SensorInfoFormatter.getReportingModeString(reportingMode, this) : getString(R.string.value_not_reported),
-                "reportingMode");
+
+        // Reporting mode
+        String reportingModeStr;
+        if (reportingMode >= 0) {
+            reportingModeStr = SensorInfoFormatter.getReportingModeString(reportingMode, this);
+        } else if (isSynthetic) {
+            reportingModeStr = getString(R.string.value_not_reported);
+        } else {
+            reportingModeStr = getString(R.string.value_not_reported);
+        }
+        addMetadataRow(R.string.detail_reporting_mode, reportingModeStr, "reportingMode");
+
+        // Wake-up
         addMetadataRow(R.string.detail_wakeup, SensorInfoFormatter.formatBoolean(wakeup, this), "wakeup");
+
+        // FIFO
         addMetadataRow(R.string.detail_fifo_max, fifoMax >= 0 ? String.valueOf(fifoMax) : getString(R.string.value_not_reported), "fifo");
         addMetadataRow(R.string.detail_fifo_reserved, fifoReserved >= 0 ? String.valueOf(fifoReserved) : getString(R.string.value_not_reported), "fifo");
-        addMetadataRow(R.string.detail_dynamic, SensorInfoFormatter.formatBoolean(dynamic, this), "dynamic");
-        addMetadataRow(R.string.detail_additional_info, SensorInfoFormatter.formatBoolean(additionalInfo, this), "additionalInfo");
+
+        // Dynamic sensor (API 24+)
+        boolean hasDynamicExtra = getIntent().hasExtra(EXTRA_SENSOR_DYNAMIC);
+        boolean dynamic = getIntent().getBooleanExtra(EXTRA_SENSOR_DYNAMIC, false);
+        if (isSynthetic) {
+            addMetadataRow(R.string.detail_dynamic, getString(R.string.value_not_reported), "dynamic");
+        } else if (hasDynamicExtra) {
+            addMetadataRow(R.string.detail_dynamic, SensorInfoFormatter.formatBoolean(dynamic, this), "dynamic");
+        } else {
+            // API level doesn't support it or extra not provided
+            addMetadataRow(R.string.detail_dynamic, getString(R.string.not_reported_requires_api, Build.VERSION_CODES.N), "dynamic");
+        }
+
+        // Additional info (API 26+)
+        boolean hasAdditionalInfoExtra = getIntent().hasExtra(EXTRA_SENSOR_ADDITIONAL_INFO);
+        boolean additionalInfo = getIntent().getBooleanExtra(EXTRA_SENSOR_ADDITIONAL_INFO, false);
+        if (isSynthetic) {
+            addMetadataRow(R.string.detail_additional_info, getString(R.string.value_not_reported), "additionalInfo");
+        } else if (hasAdditionalInfoExtra) {
+            addMetadataRow(R.string.detail_additional_info, SensorInfoFormatter.formatBoolean(additionalInfo, this), "additionalInfo");
+        } else {
+            addMetadataRow(R.string.detail_additional_info, getString(R.string.not_reported_requires_api, Build.VERSION_CODES.O), "additionalInfo");
+        }
+    }
+
+    private void addSyntheticBanner() {
+        // Add a banner at the top of the metadata container
+        View bannerView = getLayoutInflater().inflate(R.layout.item_metadata_row, metadataContainer, false);
+        TextView tvLabel = bannerView.findViewById(R.id.tv_meta_label);
+        TextView tvValue = bannerView.findViewById(R.id.tv_meta_value);
+        TextView tvMeaning = bannerView.findViewById(R.id.tv_meta_meaning);
+
+        tvLabel.setText(R.string.synthetic_banner);
+        tvLabel.setTextColor(getColor(R.color.status_emulator));
+        tvValue.setVisibility(View.GONE);
+        tvMeaning.setVisibility(View.GONE);
+
+        // Insert at position 0
+        metadataContainer.addView(bannerView, 0);
     }
 
     private void addMetadataRow(int labelResId, @NonNull String value, @Nullable String meaningKey) {
@@ -132,6 +209,27 @@ public class SensorDetailActivity extends AppCompatActivity {
         }
 
         metadataContainer.addView(rowView);
+    }
+
+    /**
+     * Capitalizes each word in a string (for string type parsing).
+     */
+    @NonNull
+    private static String capitalizeWords(@NonNull String input) {
+        StringBuilder result = new StringBuilder();
+        boolean capitalizeNext = true;
+        for (char c : input.toCharArray()) {
+            if (c == ' ' || c == '_') {
+                result.append(c);
+                capitalizeNext = true;
+            } else if (capitalizeNext) {
+                result.append(Character.toUpperCase(c));
+                capitalizeNext = false;
+            } else {
+                result.append(c);
+            }
+        }
+        return result.toString();
     }
 
     @Override

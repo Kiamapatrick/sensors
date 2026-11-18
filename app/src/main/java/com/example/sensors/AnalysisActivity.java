@@ -25,6 +25,11 @@ public class AnalysisActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Log rotation if this is a recreation
+        if (savedInstanceState != null) {
+            TestLog.getInstance().logRotationOccurred(this);
+        }
+
         // Toolbar
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

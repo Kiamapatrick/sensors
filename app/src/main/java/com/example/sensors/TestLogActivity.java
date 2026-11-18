@@ -56,7 +56,10 @@ public class TestLogActivity extends AppCompatActivity {
 
         updateEmptyState();
 
-        TestLog.getInstance().logRotationOccurred();
+        // Log rotation if this is a recreation
+        if (savedInstanceState != null) {
+            TestLog.getInstance().logRotationOccurred(this);
+        }
     }
 
     @Override
@@ -96,7 +99,7 @@ public class TestLogActivity extends AppCompatActivity {
     }
 
     private void copyLogToClipboard() {
-        String logText = TestLog.getInstance().getLogText();
+        String logText = TestLog.getInstance().getLogText(this);
         if (logText.isEmpty()) {
             Snackbar.make(rvLog, R.string.test_log_empty, Snackbar.LENGTH_SHORT).show();
             return;

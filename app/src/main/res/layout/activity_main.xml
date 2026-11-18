@@ -202,6 +202,16 @@
                             android:text="@string/env_emulator_caution"
                             android:textColor="?attr/colorOnSurfaceVariant"
                             android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/tv_synthetic_caption"
+                            style="@style/TextAppearance.SensorLab.Label"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:text="@string/synthetic_caption"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:visibility="gone" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

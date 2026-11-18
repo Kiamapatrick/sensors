@@ -80,6 +80,11 @@ public class CheckSensorActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Log rotation if this is a recreation
+        if (savedInstanceState != null) {
+            TestLog.getInstance().logRotationOccurred(this);
+        }
+
         // Toolbar
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -191,10 +196,14 @@ public class CheckSensorActivity extends AppCompatActivity {
                 intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_FIFO_MAX, sensor.getFifoMaxEventCount());
                 intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_FIFO_RESERVED, sensor.getFifoReservedEventCount());
                 intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_STRING_TYPE, sensor.getStringType());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Guard each by its actual minimum API level
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_DYNAMIC, sensor.isDynamicSensor());
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_ADDITIONAL_INFO, sensor.isAdditionalInfoSupported());
                 }
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_SYNTHETIC, false);
                 startActivity(intent);
                 TestLog.getInstance().logDetailOpened(sensor.getName());
             });

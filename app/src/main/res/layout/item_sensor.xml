@@ -75,6 +75,18 @@
                     android:visibility="gone"
                     tools:text="Wake-up"
                     tools:visibility="visible" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_synthetic"
+                    style="@style/SensorLabChipStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_sm"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:visibility="gone"
+                    tools:text="SYNTHETIC TEST ROW"
+                    tools:visibility="visible" />
             </LinearLayout>
 
             <!-- Vendor -->

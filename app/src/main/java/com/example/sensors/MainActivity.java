@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_SCROLL_POSITION = "scroll_position";
     private static final String KEY_SEARCH_QUERY = "search_query";
     private static final String KEY_EMPTY_SIMULATED = "empty_simulated";
+    private static final String KEY_SYNTHETIC_ROW = "synthetic_row";
 
     // UI
     private TextView tvManufacturer;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private com.google.android.material.chip.Chip chipEnvironment;
     private TextView tvTotalSensors;
     private TextView tvEmulatorCaution;
+    private TextView tvSyntheticCaption;
     private TextInputEditText etSearch;
     private TextView tvShowingCount;
     private RecyclerView rvSensors;
@@ -59,7 +61,9 @@ public class MainActivity extends AppCompatActivity {
     private SensorAdapter sensorAdapter;
     private SensorManager sensorManager;
     private List<Sensor> allSensors = new ArrayList<>();
+    private List<SensorItem> allItems = new ArrayList<>();
     private boolean emptySimulated = false;
+    private boolean syntheticRowVisible = false;
 
     // State restoration
     private int savedScrollPosition = 0;
@@ -86,30 +90,36 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        // Long-press total sensors text to add synthetic long-name test row
-        // (We'll set this up after finding the view)
-
         initViews();
         setupRecyclerView();
         setupSearch();
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        loadSensorData();
 
-        // Restore state
+        // Restore state BEFORE loading sensor data
         if (savedInstanceState != null) {
             savedScrollPosition = savedInstanceState.getInt(KEY_SCROLL_POSITION, 0);
             savedSearchQuery = savedInstanceState.getString(KEY_SEARCH_QUERY, "");
             emptySimulated = savedInstanceState.getBoolean(KEY_EMPTY_SIMULATED, false);
+            syntheticRowVisible = savedInstanceState.getBoolean(KEY_SYNTHETIC_ROW, false);
             if (!savedSearchQuery.isEmpty()) {
                 etSearch.setText(savedSearchQuery);
                 etSearch.setSelection(savedSearchQuery.length());
             }
         }
 
+        // Load sensor data and populate UI
+        loadSensorData();
+        refreshUi();
+
         // Log rotation if this is a recreation
         if (savedInstanceState != null) {
-            TestLog.getInstance().logRotationOccurred();
+            TestLog.getInstance().logRotationOccurred(this);
+        } else {
+            // Fresh launch: log inventory and environment
+            TestLog.getInstance().logInventoryLoaded(allSensors.size());
+            EnvironmentDetector.Result envResult = EnvironmentDetector.detect();
+            TestLog.getInstance().logEnvironmentIdentified(envResult.label);
         }
     }
 
@@ -123,12 +133,7 @@ public class MainActivity extends AppCompatActivity {
         }
         outState.putString(KEY_SEARCH_QUERY, etSearch.getText().toString());
         outState.putBoolean(KEY_EMPTY_SIMULATED, emptySimulated);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        // Scroll position will be restored in onResume or after data load
+        outState.putBoolean(KEY_SYNTHETIC_ROW, syntheticRowVisible);
     }
 
     @Override
@@ -154,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
         chipEnvironment = findViewById(R.id.chip_environment);
         tvTotalSensors = findViewById(R.id.tv_total_sensors);
         tvEmulatorCaution = findViewById(R.id.tv_emulator_caution);
+        tvSyntheticCaption = findViewById(R.id.tv_synthetic_caption);
         etSearch = findViewById(R.id.et_search);
         tvShowingCount = findViewById(R.id.tv_showing_count);
         rvSensors = findViewById(R.id.rv_sensors);
@@ -162,36 +168,61 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up long-press on total sensors text for synthetic test row
         tvTotalSensors.setOnLongClickListener(v -> {
-            addSyntheticTestRow();
+            toggleSyntheticRow();
             return true;
         });
     }
 
     private void setupRecyclerView() {
-        sensorAdapter = new SensorAdapter(this, sensor -> {
+        sensorAdapter = new SensorAdapter(this, item -> {
             // Open SensorDetailActivity
             Intent intent = new Intent(this, SensorDetailActivity.class);
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_NAME, sensor.getName());
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_TYPE, sensor.getType());
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_VENDOR, sensor.getVendor());
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_VERSION, sensor.getVersion());
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_MAX_RANGE, sensor.getMaximumRange());
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_RESOLUTION, sensor.getResolution());
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_MIN_DELAY, sensor.getMinDelay());
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_MAX_DELAY, sensor.getMaxDelay());
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_POWER, sensor.getPower());
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_REPORTING_MODE, sensor.getReportingMode());
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_WAKEUP, sensor.isWakeUpSensor());
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_FIFO_MAX, sensor.getFifoMaxEventCount());
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_FIFO_RESERVED, sensor.getFifoReservedEventCount());
-            intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_STRING_TYPE, sensor.getStringType());
-            // Dynamic sensor and additional info (API 29+)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_DYNAMIC, sensor.isDynamicSensor());
-                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_ADDITIONAL_INFO, sensor.isAdditionalInfoSupported());
+            if (item.isSynthetic()) {
+                // Pass synthetic data
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_NAME, item.getName());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_TYPE, item.getType());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_VENDOR, item.getVendor());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_VERSION, -1);
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_MAX_RANGE, -1f);
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_RESOLUTION, -1f);
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_MIN_DELAY, -1);
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_MAX_DELAY, -1);
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_POWER, -1f);
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_REPORTING_MODE, -1);
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_WAKEUP, false);
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_FIFO_MAX, -1);
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_FIFO_RESERVED, -1);
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_STRING_TYPE, "");
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_DYNAMIC, false);
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_ADDITIONAL_INFO, false);
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_SYNTHETIC, true);
+            } else {
+                Sensor sensor = item.getSensor();
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_NAME, sensor.getName());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_TYPE, sensor.getType());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_VENDOR, sensor.getVendor());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_VERSION, sensor.getVersion());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_MAX_RANGE, sensor.getMaximumRange());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_RESOLUTION, sensor.getResolution());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_MIN_DELAY, sensor.getMinDelay());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_MAX_DELAY, sensor.getMaxDelay());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_POWER, sensor.getPower());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_REPORTING_MODE, sensor.getReportingMode());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_WAKEUP, sensor.isWakeUpSensor());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_FIFO_MAX, sensor.getFifoMaxEventCount());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_FIFO_RESERVED, sensor.getFifoReservedEventCount());
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_STRING_TYPE, sensor.getStringType());
+                // Dynamic sensor and additional info (guard by actual API level)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_DYNAMIC, sensor.isDynamicSensor());
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_ADDITIONAL_INFO, sensor.isAdditionalInfoSupported());
+                }
+                intent.putExtra(SensorDetailActivity.EXTRA_SENSOR_SYNTHETIC, false);
             }
             startActivity(intent);
-            TestLog.getInstance().logDetailOpened(sensor.getName());
+            TestLog.getInstance().logDetailOpened(item.getName());
         });
         rvSensors.setLayoutManager(new LinearLayoutManager(this));
         rvSensors.setAdapter(sensorAdapter);
@@ -217,6 +248,8 @@ public class MainActivity extends AppCompatActivity {
     private void loadSensorData() {
         if (sensorManager == null) {
             Log.w(TAG, "SensorManager is null");
+            allSensors.clear();
+            allItems.clear();
             showEmptyState(true);
             return;
         }
@@ -239,22 +272,32 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Populate device card
-        populateDeviceCard();
+        // Build SensorItem list from real sensors
+        allItems.clear();
+        for (Sensor sensor : allSensors) {
+            allItems.add(SensorItem.fromSensor(sensor));
+        }
+    }
 
-        // Update UI based on empty simulation flag
+    private void refreshUi() {
+        // Apply empty simulation
         if (emptySimulated) {
             showEmptyState(true);
+            sensorAdapter.setItems(new ArrayList<>());
         } else {
             showEmptyState(allSensors.isEmpty());
+            // Build display list: synthetic row at top if visible, then real sensors
+            List<SensorItem> displayItems = new ArrayList<>();
+            if (syntheticRowVisible) {
+                displayItems.add(SensorItem.syntheticLongName());
+            }
+            displayItems.addAll(allItems);
+            sensorAdapter.setItems(displayItems);
         }
 
-        // Update adapter
-        sensorAdapter.setSensors(allSensors);
+        // Update device card (total count, synthetic caption)
+        populateDeviceCard();
         updateShowingCount();
-
-        // Log inventory loaded
-        TestLog.getInstance().logInventoryLoaded(allSensors.size());
     }
 
     private void populateDeviceCard() {
@@ -279,13 +322,18 @@ public class MainActivity extends AppCompatActivity {
             tvEmulatorCaution.setVisibility(View.GONE);
         }
 
-        // Total sensors count
-        int count = emptySimulated ? 0 : allSensors.size();
-        tvTotalSensors.setText(String.format(Locale.getDefault(), "%d", count));
-        tvEmptyTotal.setText(getString(R.string.total_sensors_format, count));
+        // Total sensors count (real sensors only)
+        int realCount = allSensors.size();
+        tvTotalSensors.setText(String.format(Locale.getDefault(), "%d", realCount));
+        tvEmptyTotal.setText(getString(R.string.total_sensors_format, realCount));
 
-        // Log environment
-        TestLog.getInstance().logEnvironmentIdentified(envResult.label);
+        // Synthetic row caption
+        if (syntheticRowVisible && !emptySimulated) {
+            tvSyntheticCaption.setText(R.string.synthetic_caption);
+            tvSyntheticCaption.setVisibility(View.VISIBLE);
+        } else {
+            tvSyntheticCaption.setVisibility(View.GONE);
+        }
     }
 
     private void showEmptyState(boolean empty) {
@@ -300,42 +348,38 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateShowingCount() {
         int showing = sensorAdapter.getFilteredCount();
-        int total = sensorAdapter.getTotalCount();
+        int total = sensorAdapter.getTotalCount(); // real sensors only
         tvShowingCount.setText(getString(R.string.showing_count_format, showing, total));
     }
 
     private void toggleEmptySimulation() {
         emptySimulated = !emptySimulated;
-        if (emptySimulated) {
-            // Simulate empty inventory
-            sensorAdapter.setSensors(new ArrayList<>());
-            showEmptyState(true);
-            tvTotalSensors.setText("0");
-            tvEmptyTotal.setText(getString(R.string.total_sensors_format, 0));
-            Snackbar.make(findViewById(R.id.main_coordinator),
-                    R.string.empty_inventory_simulated, Snackbar.LENGTH_SHORT).show();
-        } else {
-            // Restore real inventory
-            sensorAdapter.setSensors(allSensors);
-            showEmptyState(allSensors.isEmpty());
-            populateDeviceCard();
-            Snackbar.make(findViewById(R.id.main_coordinator),
-                    R.string.empty_inventory_restored, Snackbar.LENGTH_SHORT).show();
-        }
-        updateShowingCount();
+        refreshUi();
+        Snackbar.make(findViewById(R.id.main_coordinator),
+                emptySimulated ? R.string.empty_inventory_simulated : R.string.empty_inventory_restored,
+                Snackbar.LENGTH_SHORT).show();
         TestLog.getInstance().logEmptyInventorySimulated(emptySimulated);
     }
 
-    private void addSyntheticTestRow() {
-        // Create a fake sensor with very long name for testing long-name display and rotation
-        // We can't create a real Sensor object, so we add a special marker to the adapter
-        // For simplicity, we'll just log the event and show a snackbar
-        TestLog.getInstance().logLongNameVerified();
-        Snackbar.make(findViewById(R.id.main_coordinator),
-                R.string.long_name_test_added, Snackbar.LENGTH_SHORT).show();
-        // Note: In a real implementation, we'd inject a synthetic item into the adapter.
-        // For this lab, the long-name test is verified by the existing sensors with long names
-        // or by the emulator's simulated sensors which often have long names.
+    private void toggleSyntheticRow() {
+        if (emptySimulated) {
+            // Can't show synthetic row when empty simulation is active
+            Snackbar.make(findViewById(R.id.main_coordinator),
+                    "Disable empty simulation first", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+        syntheticRowVisible = !syntheticRowVisible;
+        refreshUi();
+        if (syntheticRowVisible) {
+            // Log E5-08 only when synthetic row is added
+            SensorItem synthetic = SensorItem.syntheticLongName();
+            TestLog.getInstance().logLongNameVerified(synthetic.getName().length());
+            Snackbar.make(findViewById(R.id.main_coordinator),
+                    R.string.synthetic_row_added, Snackbar.LENGTH_SHORT).show();
+        } else {
+            Snackbar.make(findViewById(R.id.main_coordinator),
+                    R.string.synthetic_row_removed, Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -360,7 +404,18 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, TestLogActivity.class));
             return true;
         } else if (id == R.id.menu_refresh) {
+            // Refresh logs E5-01 and E5-02 on explicit refresh
             loadSensorData();
+            refreshUi();
+            TestLog.getInstance().logInventoryLoaded(allSensors.size());
+            EnvironmentDetector.Result envResult = EnvironmentDetector.detect();
+            TestLog.getInstance().logEnvironmentIdentified(envResult.label);
+            return true;
+        } else if (id == R.id.menu_test_synthetic_row) {
+            toggleSyntheticRow();
+            return true;
+        } else if (id == R.id.menu_test_empty_inventory) {
+            toggleEmptySimulation();
             return true;
         }
         return super.onOptionsItemSelected(item);

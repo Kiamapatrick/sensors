@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import java.util.Locale;
 
 /**
  * Helper class for formatting sensor information into human-readable strings with correct units.
@@ -31,6 +32,24 @@ public final class SensorInfoFormatter {
         }
         // Fallback to known type constants
         return getTypeNameFromConstant(sensor.getType());
+    }
+
+    /**
+     * Returns a human-readable name for a SensorItem.
+     * Prefers stringType for real sensors, falls back to constant mapping.
+     * For synthetic items, returns the name as-is.
+     */
+    @NonNull
+    public static String getReadableTypeNameFromItem(@NonNull SensorItem item) {
+        if (item.isSynthetic()) {
+            return "Synthetic Test";
+        }
+        String stringType = item.getStringType();
+        if (stringType != null && !stringType.isEmpty()) {
+            String simpleName = stringType.substring(stringType.lastIndexOf('.') + 1);
+            return capitalizeWords(simpleName.replace('_', ' '));
+        }
+        return getTypeNameFromConstant(item.getType());
     }
 
     /**
@@ -142,6 +161,7 @@ public final class SensorInfoFormatter {
 
     /**
      * Formats a float value with its unit, handling "not reported" cases (0 or negative).
+     * Uses Locale.US to avoid localized decimal separators and trims trailing zeros.
      */
     @NonNull
     public static String formatRangeOrResolution(float value, int sensorType, @NonNull Context context) {
@@ -149,11 +169,12 @@ public final class SensorInfoFormatter {
             return context.getString(R.string.value_not_reported);
         }
         String unit = getUnitForSensorType(sensorType, context);
-        return String.format("%.6g %s", value, unit);
+        return String.format(Locale.US, "%.6g %s", value, unit);
     }
 
     /**
      * Formats minDelay (microseconds) with Hz equivalent and explanation.
+     * Uses Locale.US to avoid localized decimal separators.
      */
     @NonNull
     public static String formatMinDelay(int minDelay, @NonNull Context context) {
@@ -164,7 +185,7 @@ public final class SensorInfoFormatter {
             return context.getString(R.string.value_not_reported);
         }
         double hz = 1_000_000.0 / minDelay;
-        return String.format("%d %s (≈ %.1f %s)", minDelay, context.getString(R.string.unit_microseconds), hz, context.getString(R.string.unit_hz));
+        return String.format(Locale.US, "%d %s (≈ %.1f %s)", minDelay, context.getString(R.string.unit_microseconds), hz, context.getString(R.string.unit_hz));
     }
 
     /**
@@ -183,13 +204,14 @@ public final class SensorInfoFormatter {
 
     /**
      * Formats power (mA) with honest "not reported" handling.
+     * Uses Locale.US to avoid localized decimal separators.
      */
     @NonNull
     public static String formatPower(float power, @NonNull Context context) {
         if (power <= 0) {
             return context.getString(R.string.power_zero_not_reported);
         }
-        return String.format("%.3f %s", power, context.getString(R.string.unit_mA));
+        return String.format(Locale.US, "%.3f %s", power, context.getString(R.string.unit_mA));
     }
 
     /**

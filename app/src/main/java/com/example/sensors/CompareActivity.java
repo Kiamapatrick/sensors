@@ -123,7 +123,12 @@ public class CompareActivity extends AppCompatActivity {
         setupSpinners();
         setupMavunoLinkSection();
 
-        TestLog.getInstance().logComparisonShown();
+        // Log E5-04 only on fresh launch, not on rotation
+        if (savedInstanceState == null) {
+            TestLog.getInstance().logComparisonShown();
+        } else {
+            TestLog.getInstance().logRotationOccurred(this);
+        }
     }
 
     private void loadAvailableSensors() {
@@ -301,10 +306,13 @@ public class CompareActivity extends AppCompatActivity {
                 SensorInfoFormatter.getReportingModeString(sensor.getReportingMode(), this));
         addCompareMetadataRow(metadataContainer, R.string.detail_wakeup,
                 SensorInfoFormatter.formatBoolean(sensor.isWakeUpSensor(), this));
-        // API 29+ fields
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        // Dynamic sensor (API 24+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             addCompareMetadataRow(metadataContainer, R.string.detail_dynamic,
                     SensorInfoFormatter.formatBoolean(sensor.isDynamicSensor(), this));
+        }
+        // Additional info (API 26+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             addCompareMetadataRow(metadataContainer, R.string.detail_additional_info,
                     SensorInfoFormatter.formatBoolean(sensor.isAdditionalInfoSupported(), this));
         }

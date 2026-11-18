@@ -87,14 +87,25 @@ public final class TestLog {
 
     /**
      * Returns all log entries as a single string for copying to clipboard.
+     * Includes a header with device info, environment, and copy timestamp.
      */
     @NonNull
-    public String getLogText() {
+    public String getLogText(@NonNull Context context) {
         List<Entry> snapshot = getEntries();
-        if (snapshot.isEmpty()) {
-            return "";
-        }
         StringBuilder sb = new StringBuilder();
+
+        // Header
+        String model = android.os.Build.MODEL;
+        String androidVersion = android.os.Build.VERSION.RELEASE;
+        int apiLevel = android.os.Build.VERSION.SDK_INT;
+        EnvironmentDetector.Result envResult = EnvironmentDetector.detect();
+        String envLabel = envResult.label;
+        String copyTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+
+        sb.append(String.format(Locale.getDefault(),
+                context.getString(R.string.log_header_format),
+                model, androidVersion, apiLevel, envLabel, copyTime));
+
         for (Entry entry : snapshot) {
             sb.append(entry.toString()).append('\n');
         }
@@ -151,10 +162,15 @@ public final class TestLog {
     }
 
     /**
-     * E5-05: Unsupported sensor checked.
+     * E5-05: Sensor availability checked.
+     * Uses different wording for available vs unavailable.
      */
     public void logSensorChecked(int sensorType, boolean available) {
-        log("E5-05", "Unsupported sensor checked: type=%d, result=%s", sensorType, available ? "available" : "unavailable");
+        if (available) {
+            log("E5-05", "Sensor availability checked: type=%d, result=available", sensorType);
+        } else {
+            log("E5-05", "Unsupported sensor handled safely: type=%d, not available", sensorType);
+        }
     }
 
     /**
@@ -166,15 +182,20 @@ public final class TestLog {
 
     /**
      * E5-07: Rotation occurred.
+     * Includes activity class name and current orientation.
      */
-    public void logRotationOccurred() {
-        log("E5-07", "Rotation occurred (config change)");
+    public void logRotationOccurred(@NonNull Context context) {
+        String activityName = context.getClass().getSimpleName();
+        int orientation = context.getResources().getConfiguration().orientation;
+        String orientationStr = (orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) ? "landscape" : "portrait";
+        log("E5-07", "Rotation occurred in %s (now %s)", activityName, orientationStr);
     }
 
     /**
      * E5-08: Long-name display verified.
+     * Logged only when synthetic row is added, with name length.
      */
-    public void logLongNameVerified() {
-        log("E5-08", "Long-name display verified");
+    public void logLongNameVerified(int nameLength) {
+        log("E5-08", "Long-name test row displayed (name length = %d chars)", nameLength);
     }
 }
